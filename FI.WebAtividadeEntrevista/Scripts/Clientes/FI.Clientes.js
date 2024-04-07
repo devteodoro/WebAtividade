@@ -2,6 +2,9 @@
 $(document).ready(function () {
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
+
+        beneficiarios = filtrarBeneficiariosParaEnviar();
+
         $.ajax({
             url: urlPost,
             method: "POST",
@@ -29,11 +32,23 @@ $(document).ready(function () {
             function (r) {
                 ModalDialog("Sucesso!", r)
                 $("#formCadastro")[0].reset();
+                limparCampos();
+                limparTabelaBeneficiarios();
             }
         });
     })
     
 })
+
+function filtrarBeneficiariosParaEnviar() {
+    let temp = [];
+    for (let i = 0; i < beneficiarios.length; i++) {
+        if (!(beneficiarios[i].isDeleted == true && beneficiarios[i].isSaved == false)) {
+            temp.push(beneficiarios[i]);
+        }
+    }
+    return temp;
+}
 
 function ModalDialog(titulo, texto) {
     var random = Math.random().toString().replace('.', '');

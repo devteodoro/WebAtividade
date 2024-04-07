@@ -19,8 +19,6 @@ $(document).ready(function () {
             for (let i = 0; i < list.length; i++) {
                 let linha = $('<tr>');
                 linha.attr("id", list[i].Id)
-                linha.attr("isSaved", list[i].isSaved)
-                linha.attr("changed", list[i].changed)
 
                 //Coluna de CPF
                 linha.append($('<td>').text(list[i].CPF));
@@ -43,7 +41,7 @@ $(document).ready(function () {
 
                 linha.append(colunaAcoes);
 
-                beneficiarios.push({ Id: id, CPF: cpf, Nome: nome, isSaved: false })
+                beneficiarios.push({ Id: list[i].Id, CPF: list[i].CPF, Nome: list[i].Nome, isSaved: list[i].isSaved, changed: list[i].changed,  isDeleted: list[i].isDeleted })
                 $("#tblBeneficiarios tbody").append(linha);
             }         
         }
@@ -51,6 +49,8 @@ $(document).ready(function () {
 
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
+
+        beneficiarios = filtrarBeneficiariosParaEnviar();
         
         $.ajax({
             url: urlPost,
@@ -65,7 +65,7 @@ $(document).ready(function () {
                 "Cidade": $(this).find("#Cidade").val(),
                 "Logradouro": $(this).find("#Logradouro").val(),
                 "Telefone": $(this).find("#Telefone").val(),
-                "CPF": $(this).find("CPF").val(),
+                "CPF": $(this).find("#CPF").val(),
                 "Beneficiarios": beneficiarios
             },
             error:
@@ -85,6 +85,16 @@ $(document).ready(function () {
     })
     
 })
+
+function filtrarBeneficiariosParaEnviar() {
+    let temp = [];
+    for (let i = 0; i < beneficiarios.length; i++) {
+        if (!(beneficiarios[i].isDeleted == true && beneficiarios[i].isSaved == false)) {
+            temp.push(beneficiarios[i]);
+        } 
+    }
+    return temp;
+}
 
 function ModalDialog(titulo, texto) {
     var random = Math.random().toString().replace('.', '');

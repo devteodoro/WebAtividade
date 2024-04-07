@@ -26,8 +26,6 @@ $(document).ready(function () {
                 let id = novoId();
                 let linha = $('<tr>');
                 linha.attr("id", id);
-                linha.attr("isSaved", false)
-                linha.attr("changed", false)
 
                 //Coluna de CPF
                 linha.append($('<td>').text(cpf));
@@ -50,7 +48,7 @@ $(document).ready(function () {
 
                 linha.append(colunaAcoes);
 
-                beneficiarios.push({ Id: id, CPF: cpf, Nome: nome, isSaved: false, changed = false })
+                beneficiarios.push({ Id: id, CPF: cpf, Nome: nome, isSaved: false, changed: false, isDeleted: false })
                 $("#tblBeneficiarios tbody").append(linha);
 
             } else {
@@ -117,7 +115,10 @@ function excluirBeneficiario(btn) {
     let id = linha
         .attr("id");
 
-    beneficiarios.splice(buscarIndice(id), 1);
+    let beneficiario = beneficiarios.find(x => x.Id == id);
+
+    if (beneficiario != null & beneficiario != undefined)
+        beneficiario.isDeleted = true;
 
     linha.remove();
 }
@@ -131,7 +132,7 @@ function buscarIndice(id) {
 }
 
 function cpfRepetido(cpf) {
-    let cpfs = beneficiarios.filter(x => x.CPF == cpf);
+    let cpfs = beneficiarios.filter(x => x.CPF == cpf && x.isDeleted == false);
     return cpfs.length > 0 ? true : false;
 }
 
@@ -139,4 +140,9 @@ function limparCampos() {
     $("#identificadorBenfeficiario").val("");
     $("#beneficiarioCPF").val("");
     $("#beneficiarioNome").val("");
+}
+
+function limparTabelaBeneficiarios() {
+    beneficiarios = [];
+    $("#tblBeneficiarios tbody").empty()
 }

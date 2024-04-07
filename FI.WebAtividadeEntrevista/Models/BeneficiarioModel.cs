@@ -24,10 +24,13 @@ namespace WebAtividadeEntrevista.Models
         /// Nome
         /// </summary>
         [Required]
+        [MaxLength(50)]
         public string Nome { get; set; }
 
-        public bool isSaved = true;
+        public bool isSaved { get; set; }
 
-        public bool changed = false;
+        public bool isDeleted { get; set; }
+
+        public bool changed { get; set; }
     }
 }

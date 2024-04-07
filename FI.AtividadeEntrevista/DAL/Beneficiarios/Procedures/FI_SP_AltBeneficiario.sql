@@ -1,10 +1,10 @@
-﻿CREATE PROC FI_SP_AltBeneficiario
+﻿CREATE PROC FI_SP_AlterarBeneficiario
     @NOME       VARCHAR (50) ,
 	@CPF		VARCHAR (14) ,
 	@Id         BIGINT
 AS
 BEGIN
-	UPDATE CLIENTES 
+	UPDATE BENEFICIARIOS 
 	SET 
 		NOME = @NOME, 
 		CPF = @CPF

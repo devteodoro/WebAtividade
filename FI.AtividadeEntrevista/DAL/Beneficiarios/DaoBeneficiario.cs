@@ -18,11 +18,11 @@ namespace FI.AtividadeEntrevista.DAL
         {
             List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", beneficiario.Nome));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
             parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
             parametros.Add(new System.Data.SqlClient.SqlParameter("IDCLIENTE", beneficiario.IdCliente));
 
-            DataSet ds = base.Consultar("FI_SP_IncBeneficiario", parametros);
+            DataSet ds = base.Consultar("FI_SP_IncluirBeneficiario", parametros);
             long ret = 0;
             if (ds.Tables[0].Rows.Count > 0)
                 long.TryParse(ds.Tables[0].Rows[0][0].ToString(), out ret);
@@ -37,11 +37,11 @@ namespace FI.AtividadeEntrevista.DAL
         {
             List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", beneficiario.Nome));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
             parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
             parametros.Add(new System.Data.SqlClient.SqlParameter("ID", beneficiario.Id));
 
-            base.Executar("FI_SP_AltBeneficiario", parametros);
+            base.Executar("FI_SP_AlterarBeneficiario", parametros);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace FI.AtividadeEntrevista.DAL
 
             parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
 
-            base.Executar("FI_SP_DelBeneficiario", parametros);
+            base.Executar("FI_SP_DeletarBeneficiario", parametros);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace FI.AtividadeEntrevista.DAL
 
             parametros.Add(new System.Data.SqlClient.SqlParameter("idCliente", idCliente));
 
-            DataSet ds = base.Consultar("FI_SP_ListarPorCliente", parametros);
+            DataSet ds = base.Consultar("FI_SP_ListarBeneficiariosPorCliente", parametros);
             List<DML.Beneficiario> bens = Converter(ds);
 
             return bens;
@@ -84,7 +84,7 @@ namespace FI.AtividadeEntrevista.DAL
                     ben.Id = row.Field<long>("Id");
                     ben.Nome = row.Field<string>("Nome");
                     ben.CPF = row.Field<string>("CPF");
-                    ben.IdCliente = row.Field<int>("IDCLIENTE");
+                    ben.IdCliente = row.Field<long>("IDCLIENTE");
                     lista.Add(ben);
                 }
             }

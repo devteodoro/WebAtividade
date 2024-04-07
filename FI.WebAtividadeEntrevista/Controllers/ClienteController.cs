@@ -50,7 +50,7 @@ namespace WebAtividadeEntrevista.Controllers
                 if (bo.VerificarExistencia(model.CPF))
                 {
                     Response.StatusCode = 400;
-                    return Json("O CPF informado já está cadastrado no sistema!");
+                    return Json("Já existe uma cliente com o CPF informado cadastrado no sistema!");
                 }
           
                 model.Id = bo.Incluir(new Cliente()
@@ -134,12 +134,12 @@ namespace WebAtividadeEntrevista.Controllers
                 if (model.Beneficiarios.Count > 0)
                 {
                     BoBeneficiario boBeneficiario = new BoBeneficiario();
-                    foreach (BeneficiarioModel beneficiario in model.Beneficiarios)
+                    foreach (BeneficiarioModel beneficiarioModel in model.Beneficiarios)
                     {
                         Beneficiario ben = new Beneficiario();
-                        ben.Id = beneficiario.Id;
-                        ben.Nome = beneficiario.Nome;
-                        ben.CPF = beneficiario.CPF;
+                        ben.Id = beneficiarioModel.Id;
+                        ben.Nome = beneficiarioModel.Nome;
+                        ben.CPF = beneficiarioModel.CPF;
                         ben.IdCliente = model.Id;
 
                         if (!ValidacaoCPF.CPFvalido(model.CPF))
@@ -148,10 +148,12 @@ namespace WebAtividadeEntrevista.Controllers
                         }
                         else
                         {
-                            if (beneficiario.isSaved && beneficiario.changed)
+                            if (beneficiarioModel.isSaved && beneficiarioModel.changed)
                                 boBeneficiario.Alterar(ben);
-                            else if (beneficiario.isSaved == false)
+                            else if (beneficiarioModel.isSaved == false)
                                 boBeneficiario.Incluir(ben);
+                            else if (beneficiarioModel.isSaved && beneficiarioModel.isDeleted)
+                                boBeneficiario.Excluir(beneficiarioModel.Id);
                         }
                     }
                 }
@@ -199,6 +201,9 @@ namespace WebAtividadeEntrevista.Controllers
                                 Id = b.Id,
                                 Nome = b.Nome,
                                 CPF = b.CPF,
+                                isSaved = true,
+                                isDeleted = false,
+                                changed = false,
                             });
                     }
                 }
