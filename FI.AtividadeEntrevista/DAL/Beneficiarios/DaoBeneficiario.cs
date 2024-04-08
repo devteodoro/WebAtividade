@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,15 +15,16 @@ namespace FI.AtividadeEntrevista.DAL
         /// Inclui um novo beneficiario
         /// </summary>
         /// <param name="beneficiario">Objeto de beneficiario</param>
-        internal long Incluir(DML.Beneficiario beneficiario)
+        internal async Task<long> IncluirAsync(DML.Beneficiario beneficiario)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("NOME", beneficiario.Nome),
+                new SqlParameter("CPF", beneficiario.CPF),
+                new SqlParameter("IDCLIENTE", beneficiario.IdCliente),
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("IDCLIENTE", beneficiario.IdCliente));
-
-            DataSet ds = base.Consultar("FI_SP_IncluirBeneficiario", parametros);
+            DataSet ds = await base.ConsultarAsync("FI_SP_IncluirBeneficiario", parametros);
             long ret = 0;
             if (ds.Tables[0].Rows.Count > 0)
                 long.TryParse(ds.Tables[0].Rows[0][0].ToString(), out ret);
@@ -33,41 +35,44 @@ namespace FI.AtividadeEntrevista.DAL
         /// Alterar Beneficiario
         /// </summary>
         /// <param name="beneficiario">Objeto de beneficiario</param>
-        internal void Alterar(DML.Beneficiario beneficiario)
+        internal async Task AlterarAsync(DML.Beneficiario beneficiario)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("NOME", beneficiario.Nome),
+                new SqlParameter("CPF", beneficiario.CPF),
+                new SqlParameter("ID", beneficiario.Id)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("ID", beneficiario.Id));
-
-            base.Executar("FI_SP_AlterarBeneficiario", parametros);
+            await base.ExecutarAsync("FI_SP_AlterarBeneficiario", parametros);
         }
 
         /// <summary>
         /// Excluir Beneficiario
         /// </summary>
         /// <param name="beneficiario">Objeto de beneficiario</param>
-        internal void Excluir(long Id)
+        internal async Task ExcluirAsync(long Id)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Id", Id)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
-
-            base.Executar("FI_SP_DeletarBeneficiario", parametros);
+            await base.ExecutarAsync("FI_SP_DeletarBeneficiario", parametros);
         }
 
         /// <summary>
         /// Listar Beneficiarios por cliente
         /// </summary>
         /// <param name="beneficiario">Objeto de beneficiario</param>
-        internal List<Beneficiario> ListarPorCliente(long idCliente)
+        internal async Task<List<Beneficiario>> ListarPorClienteAsync(long idCliente)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("idCliente", idCliente)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("idCliente", idCliente));
-
-            DataSet ds = base.Consultar("FI_SP_ListarBeneficiariosPorCliente", parametros);
+            DataSet ds = await base.ConsultarAsync("FI_SP_ListarBeneficiariosPorCliente", parametros);
             List<DML.Beneficiario> bens = Converter(ds);
 
             return bens;
@@ -88,17 +93,17 @@ namespace FI.AtividadeEntrevista.DAL
                     lista.Add(ben);
                 }
             }
-
             return lista;
         }
 
-        internal bool VerificarExistencia(string CPF)
+        internal async Task<bool> VerificarExistenciaAsync(string CPF)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("CPF", CPF)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", CPF));
-
-            DataSet ds = base.Consultar("FI_SP_PesCPFBeneficiario", parametros);
+            DataSet ds = await base.ConsultarAsync("FI_SP_PesCPFBeneficiario", parametros);
 
             return ds.Tables[0].Rows.Count > 0;
         }

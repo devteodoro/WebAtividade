@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,22 +18,23 @@ namespace FI.AtividadeEntrevista.DAL
         /// Inclui um novo cliente
         /// </summary>
         /// <param name="cliente">Objeto de cliente</param>
-        internal long Incluir(DML.Cliente cliente)
+        internal async Task<long> IncluirAsync(Cliente cliente)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
-            
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", cliente.Nome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Sobrenome", cliente.Sobrenome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nacionalidade", cliente.Nacionalidade));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CEP", cliente.CEP));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Estado", cliente.Estado));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Cidade", cliente.Cidade));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Logradouro", cliente.Logradouro));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Email", cliente.Email));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Telefone", cliente.Telefone));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", cliente.CPF));
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Nome", cliente.Nome),
+                new SqlParameter("Sobrenome", cliente.Sobrenome),
+                new SqlParameter("Nacionalidade", cliente.Nacionalidade),
+                new SqlParameter("CEP", cliente.CEP),
+                new SqlParameter("Estado", cliente.Estado),
+                new SqlParameter("Cidade", cliente.Cidade),
+                new SqlParameter("Logradouro", cliente.Logradouro),
+                new SqlParameter("Email", cliente.Email),
+                new SqlParameter("Telefone", cliente.Telefone),
+                new SqlParameter("CPF", cliente.CPF)
+            };
 
-            DataSet ds = base.Consultar("FI_SP_IncClienteV3", parametros);
+            DataSet ds = await base.ConsultarAsync("FI_SP_IncClienteV3", parametros);
             long ret = 0;
             if (ds.Tables[0].Rows.Count > 0)
                 long.TryParse(ds.Tables[0].Rows[0][0].ToString(), out ret);
@@ -43,62 +45,64 @@ namespace FI.AtividadeEntrevista.DAL
         /// Inclui um novo cliente
         /// </summary>
         /// <param name="cliente">Objeto de cliente</param>
-        internal DML.Cliente Consultar(long Id)
+        internal async Task<Cliente> ConsultarAsync(long Id)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Id", Id)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
-
-            DataSet ds = base.Consultar("FI_SP_ConsClienteV2", parametros);
-            List<DML.Cliente> cli = Converter(ds);
+            DataSet ds = await base.ConsultarAsync("FI_SP_ConsClienteV2", parametros);
+            List<Cliente> cli = Converter(ds);
 
             return cli.FirstOrDefault();
         }
 
-        internal bool VerificarExistencia(string CPF)
+        internal async Task<bool> VerificarExistenciaAsync(string CPF)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("CPF", CPF)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", CPF));
-
-            DataSet ds = base.Consultar("FI_SP_VerificaCliente", parametros);
+            DataSet ds = await base.ConsultarAsync("FI_SP_VerificaCliente", parametros);
 
             return ds.Tables[0].Rows.Count > 0;
         }
 
-        internal List<Cliente> Pesquisa(int iniciarEm, int quantidade, string campoOrdenacao, bool crescente, out int qtd)
+        internal async Task<listarCliente> PesquisaAsync(int iniciarEm, int quantidade, string campoOrdenacao, bool crescente)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("iniciarEm", iniciarEm),
+                new SqlParameter("quantidade", quantidade),
+                new SqlParameter("campoOrdenacao", campoOrdenacao),
+                new SqlParameter("crescente", crescente)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("iniciarEm", iniciarEm));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("quantidade", quantidade));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("campoOrdenacao", campoOrdenacao));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("crescente", crescente));
-
-            DataSet ds = base.Consultar("FI_SP_PesqClienteV2", parametros);
-            List<DML.Cliente> cli = Converter(ds);
+            DataSet ds = await base.ConsultarAsync("FI_SP_PesqClienteV2", parametros);
+            List<Cliente> cli = Converter(ds);
 
             int iQtd = 0;
 
             if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 int.TryParse(ds.Tables[1].Rows[0][0].ToString(), out iQtd);
 
-            qtd = iQtd;
-
-            return cli;
+            return new listarCliente { qtd = iQtd, clientes = cli };
         }
 
         /// <summary>
         /// Lista todos os clientes
         /// </summary>
-        internal List<DML.Cliente> Listar()
+        internal async Task<List<Cliente>> ListarAsync()
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Id", 0)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", 0));
-
-            DataSet ds = base.Consultar("FI_SP_ConsCliente", parametros);
-            List<DML.Cliente> cli = Converter(ds);
+            DataSet ds = await base.ConsultarAsync("FI_SP_ConsCliente", parametros);
+            List<Cliente> cli = Converter(ds);
 
             return cli;
         }
@@ -107,37 +111,37 @@ namespace FI.AtividadeEntrevista.DAL
         /// Inclui um novo cliente
         /// </summary>
         /// <param name="cliente">Objeto de cliente</param>
-        internal void Alterar(DML.Cliente cliente)
+        internal async Task AlterarAsync(Cliente cliente)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
-
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nome", cliente.Nome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Sobrenome", cliente.Sobrenome));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Nacionalidade", cliente.Nacionalidade));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CEP", cliente.CEP));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Estado", cliente.Estado));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Cidade", cliente.Cidade));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Logradouro", cliente.Logradouro));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Email", cliente.Email));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Telefone", cliente.Telefone));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", cliente.CPF));
-            parametros.Add(new System.Data.SqlClient.SqlParameter("ID", cliente.Id));
-
-            base.Executar("FI_SP_AltClienteV2", parametros);
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Nome", cliente.Nome),
+                new SqlParameter("Sobrenome", cliente.Sobrenome),
+                new SqlParameter("Nacionalidade", cliente.Nacionalidade),
+                new SqlParameter("CEP", cliente.CEP),
+                new SqlParameter("Estado", cliente.Estado),
+                new SqlParameter("Cidade", cliente.Cidade),
+                new SqlParameter("Logradouro", cliente.Logradouro),
+                new SqlParameter("Email", cliente.Email),
+                new SqlParameter("Telefone", cliente.Telefone),
+                new SqlParameter("CPF", cliente.CPF),
+                new SqlParameter("ID", cliente.Id)
+            };
+            await base.ExecutarAsync("FI_SP_AltClienteV2", parametros);
         }
-
 
         /// <summary>
         /// Excluir Cliente
         /// </summary>
         /// <param name="cliente">Objeto de cliente</param>
-        internal void Excluir(long Id)
+        internal async Task ExcluirAsync(long Id)
         {
-            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("Id", Id)
+            };
 
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
-
-            base.Executar("FI_SP_DelCliente", parametros);
+            await base.ExecutarAsync("FI_SP_DelCliente", parametros);
         }
 
         private List<DML.Cliente> Converter(DataSet ds)
@@ -165,5 +169,11 @@ namespace FI.AtividadeEntrevista.DAL
 
             return lista;
         }
+    }
+
+    public class listarCliente
+    {
+        public double qtd = 0;
+        public List<Cliente> clientes = new List<Cliente>();
     }
 }

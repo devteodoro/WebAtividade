@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using FI.AtividadeEntrevista.DML;
 using FI.AtividadeEntrevista.Servicos;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using FI.AtividadeEntrevista.DAL;
 
 namespace WebAtividadeEntrevista.Controllers
 {
@@ -24,150 +26,123 @@ namespace WebAtividadeEntrevista.Controllers
         }
 
         [HttpPost]
-        public JsonResult Incluir(ClienteModel model)
+        public async Task<JsonResult> Incluir(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-            
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
-
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
-            }
-            else
-            {
-                List<string> erros = new List<string>();
-
-                if (!ValidacaoCPF.CPFvalido(model.CPF))
+                if (!ModelState.IsValid)
                 {
+                    List<string> erros = ModelState.Values.SelectMany(item => item.Errors).Select(error => error.ErrorMessage).ToList();
+
                     Response.StatusCode = 400;
-                    return Json("CPF invalido!");
+                    return Json(string.Join(Environment.NewLine, erros));
                 }
-
-                if (bo.VerificarExistencia(model.CPF))
+                else
                 {
-                    Response.StatusCode = 400;
-                    return Json("Já existe uma cliente com o CPF informado cadastrado no sistema!");
-                }
-          
-                model.Id = bo.Incluir(new Cliente()
-                {                    
-                    CEP = model.CEP,
-                    Cidade = model.Cidade,
-                    Email = model.Email,
-                    Estado = model.Estado,
-                    Logradouro = model.Logradouro,
-                    Nacionalidade = model.Nacionalidade,
-                    Nome = model.Nome,
-                    Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone,
-                    CPF = model.CPF
-                });
+                    BoCliente bo = new BoCliente();
 
-                if (model.Beneficiarios != null && model.Beneficiarios.Count > 0)
-                {
-                    BoBeneficiario boBeneficiario = new BoBeneficiario();
-                    foreach (BeneficiarioModel beneficiario in model.Beneficiarios)
+                    model.Id = await bo.IncluirAsync(new Cliente()
                     {
-                        Beneficiario ben = new Beneficiario();
-                        ben.Nome = beneficiario.Nome;
-                        ben.CPF = beneficiario.CPF;
-                        ben.IdCliente = model.Id;
-                        
-                        if (!ValidacaoCPF.CPFvalido(model.CPF))
+                        CEP = model.CEP,
+                        Cidade = model.Cidade,
+                        Email = model.Email,
+                        Estado = model.Estado,
+                        Logradouro = model.Logradouro,
+                        Nacionalidade = model.Nacionalidade,
+                        Nome = model.Nome,
+                        Sobrenome = model.Sobrenome,
+                        Telefone = model.Telefone,
+                        CPF = model.CPF
+                    });
+
+                    if (model.Beneficiarios != null && model.Beneficiarios.Count > 0)
+                    {
+                        BoBeneficiario boBeneficiario = new BoBeneficiario();
+                        foreach (BeneficiarioModel beneficiario in model.Beneficiarios)
                         {
-                            erros.Add($"O CPF do beneficiário {ben.Nome} é invalido!");
-                        }
-                        else
-                        {
-                            boBeneficiario.Incluir(ben);
+                            Beneficiario ben = new Beneficiario();
+                            ben.Nome = beneficiario.Nome;
+                            ben.CPF = beneficiario.CPF;
+                            ben.IdCliente = model.Id;
+                            await boBeneficiario.IncluirAsync(ben);
                         }
                     }
-                }
 
-                return Json("Cadastro efetuado com sucesso", JsonConvert.SerializeObject(erros));
+                    return Json("Cadastro efetuado com sucesso!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json($"Ops, ocorreu um erro no servidor! {ex.Message}");
             }
         }
 
         [HttpPost]
-        public JsonResult Alterar(ClienteModel model)
+        public async Task<JsonResult> Alterar(ClienteModel model)
         {
-            BoCliente bo = new BoCliente();
-       
-            if (!this.ModelState.IsValid)
+            try
             {
-                List<string> erros = (from item in ModelState.Values
-                                      from error in item.Errors
-                                      select error.ErrorMessage).ToList();
-
-                Response.StatusCode = 400;
-                return Json(string.Join(Environment.NewLine, erros));
-            }
-            else
-            {
-                List<string> erros = new List<string>();
-
-                if (!ValidacaoCPF.CPFvalido(model.CPF))
+                if (!ModelState.IsValid)
                 {
+                    List<string> erros = ModelState.Values.SelectMany(item => item.Errors).Select(error => error.ErrorMessage).ToList();
+
                     Response.StatusCode = 400;
-                    return Json("CPF invalido!");
+                    return Json(string.Join(Environment.NewLine, erros));
                 }
-
-                bo.Alterar(new Cliente()
+                else
                 {
-                    Id = model.Id,
-                    CEP = model.CEP,
-                    Cidade = model.Cidade,
-                    Email = model.Email,
-                    Estado = model.Estado,
-                    Logradouro = model.Logradouro,
-                    Nacionalidade = model.Nacionalidade,
-                    Nome = model.Nome,
-                    Sobrenome = model.Sobrenome,
-                    Telefone = model.Telefone,
-                    CPF = model.CPF
-                });
+                    BoCliente bo = new BoCliente();
 
-                if (model.Beneficiarios.Count > 0)
-                {
-                    BoBeneficiario boBeneficiario = new BoBeneficiario();
-                    foreach (BeneficiarioModel beneficiarioModel in model.Beneficiarios)
+                    await bo.AlterarAsync(new Cliente()
                     {
-                        Beneficiario ben = new Beneficiario();
-                        ben.Id = beneficiarioModel.Id;
-                        ben.Nome = beneficiarioModel.Nome;
-                        ben.CPF = beneficiarioModel.CPF;
-                        ben.IdCliente = model.Id;
+                        Id = model.Id,
+                        CEP = model.CEP,
+                        Cidade = model.Cidade,
+                        Email = model.Email,
+                        Estado = model.Estado,
+                        Logradouro = model.Logradouro,
+                        Nacionalidade = model.Nacionalidade,
+                        Nome = model.Nome,
+                        Sobrenome = model.Sobrenome,
+                        Telefone = model.Telefone,
+                        CPF = model.CPF
+                    });
 
-                        if (!ValidacaoCPF.CPFvalido(model.CPF))
+                    if (model.Beneficiarios.Count > 0)
+                    {
+                        BoBeneficiario boBeneficiario = new BoBeneficiario();
+                        foreach (BeneficiarioModel beneficiarioModel in model.Beneficiarios)
                         {
-                            erros.Add($"O CPF do beneficiário {ben.Nome} é invalido!");
-                        }
-                        else
-                        {
+                            Beneficiario ben = new Beneficiario();
+                            ben.Id = beneficiarioModel.Id;
+                            ben.Nome = beneficiarioModel.Nome;
+                            ben.CPF = beneficiarioModel.CPF;
+                            ben.IdCliente = model.Id;
+
                             if (beneficiarioModel.isSaved && beneficiarioModel.changed)
-                                boBeneficiario.Alterar(ben);
+                                await boBeneficiario.AlterarAsync(ben);
                             else if (beneficiarioModel.isSaved == false)
-                                boBeneficiario.Incluir(ben);
+                                await boBeneficiario.IncluirAsync(ben);
                             else if (beneficiarioModel.isSaved && beneficiarioModel.isDeleted)
-                                boBeneficiario.Excluir(beneficiarioModel.Id);
+                                await boBeneficiario.ExcluirAsync(beneficiarioModel.Id);
                         }
                     }
-                }
 
-                return Json("Cadastro alterado com sucesso", JsonConvert.SerializeObject(erros));
+                    return Json("Cadastro alterado com sucesso");
+                }
             }
+            catch (Exception ex) 
+            {
+                return Json($"Ops, ocorreu um erro no servidor! {ex.Message}");
+            }       
         }
 
         [HttpGet]
-        public ActionResult Alterar(long id)
+        public async Task<ActionResult> Alterar(long id)
         {
             BoCliente bo = new BoCliente();
-            Cliente cliente = bo.Consultar(id);
-            Models.ClienteModel model = null;
+            Cliente cliente = await bo.ConsultarAsync(id);
+            ClienteModel model = null;
 
             if (cliente != null)
             {
@@ -185,26 +160,24 @@ namespace WebAtividadeEntrevista.Controllers
                     Telefone = cliente.Telefone,
                     CPF = cliente.CPF,
                     Beneficiarios = new List<BeneficiarioModel>()
-                };  
-               
+                };
+
                 BoBeneficiario boBeneficiario = new BoBeneficiario();
-                List<Beneficiario> beneficiarios = boBeneficiario.ListarPorCliente(id);
+                List<Beneficiario> beneficiarios = await boBeneficiario.ListarPorClienteAsync(id);
 
                 if (beneficiarios.Count > 0)
                 {
                     foreach (Beneficiario b in beneficiarios)
                     {
-                        model
-                            .Beneficiarios
-                            .Add(new BeneficiarioModel
-                            {
-                                Id = b.Id,
-                                Nome = b.Nome,
-                                CPF = b.CPF,
-                                isSaved = true,
-                                isDeleted = false,
-                                changed = false,
-                            });
+                        model.Beneficiarios.Add(new BeneficiarioModel
+                        {
+                            Id = b.Id,
+                            Nome = b.Nome,
+                            CPF = b.CPF,
+                            isSaved = true,
+                            isDeleted = false,
+                            changed = false,
+                        });
                     }
                 }
             }
@@ -213,7 +186,7 @@ namespace WebAtividadeEntrevista.Controllers
         }
 
         [HttpPost]
-        public JsonResult ClienteList(int jtStartIndex = 0, int jtPageSize = 0, string jtSorting = null)
+        public async Task<JsonResult> ClienteList(int jtStartIndex = 0, int jtPageSize = 0, string jtSorting = null)
         {
             try
             {
@@ -228,10 +201,10 @@ namespace WebAtividadeEntrevista.Controllers
                 if (array.Length > 1)
                     crescente = array[1];
 
-                List<Cliente> clientes = new BoCliente().Pesquisa(jtStartIndex, jtPageSize, campo, crescente.Equals("ASC", StringComparison.InvariantCultureIgnoreCase), out qtd);
+                listarCliente parametros = await new BoCliente().PesquisaAsync(jtStartIndex, jtPageSize, campo, crescente.Equals("ASC", StringComparison.InvariantCultureIgnoreCase));
 
                 //Return result to jTable
-                return Json(new { Result = "OK", Records = clientes, TotalRecordCount = qtd });
+                return Json(new { Result = "OK", Records = parametros.clientes, TotalRecordCount = parametros.qtd });
             }
             catch (Exception ex)
             {

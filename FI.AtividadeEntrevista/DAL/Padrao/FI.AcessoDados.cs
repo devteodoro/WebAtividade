@@ -23,53 +23,41 @@ namespace FI.AtividadeEntrevista.DAL
             }
         }
 
-        internal void Executar(string NomeProcedure, List<SqlParameter> parametros)
+        internal async Task ExecutarAsync(string nomeProcedure, List<SqlParameter> parametros)
         {
-            SqlCommand comando = new SqlCommand();
-            SqlConnection conexao = new SqlConnection(stringDeConexao);
-            comando.Connection = conexao;
-            comando.CommandType = System.Data.CommandType.StoredProcedure;
-            comando.CommandText = NomeProcedure;
-            foreach (var item in parametros)
-                comando.Parameters.Add(item);
+            using (SqlConnection conexao = new SqlConnection(stringDeConexao))
+            {
+                using (SqlCommand comando = new SqlCommand(nomeProcedure, conexao))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+                    foreach (var item in parametros)
+                        comando.Parameters.Add(item);
 
-            conexao.Open();
-            try
-            {
-                comando.ExecuteNonQuery();
-            }
-            finally
-            {
-                conexao.Close();
+                    await conexao.OpenAsync();
+                    await comando.ExecuteNonQueryAsync();
+                }
             }
         }
 
-        internal DataSet Consultar(string NomeProcedure, List<SqlParameter> parametros)
+        internal async Task<DataSet> ConsultarAsync(string nomeProcedure, List<SqlParameter> parametros)
         {
-            SqlCommand comando = new SqlCommand();
-            SqlConnection conexao = new SqlConnection(stringDeConexao);
-
-            comando.Connection = conexao;
-            comando.CommandType = System.Data.CommandType.StoredProcedure;
-            comando.CommandText = NomeProcedure;
-            foreach (var item in parametros)
-                comando.Parameters.Add(item);
-
-            SqlDataAdapter adapter = new SqlDataAdapter(comando);
-            DataSet ds = new DataSet();
-            conexao.Open();
-
-            try
-            {               
-                adapter.Fill(ds);
-            }
-            finally
+            using (SqlConnection conexao = new SqlConnection(stringDeConexao))
             {
-                conexao.Close();
+                using (SqlCommand comando = new SqlCommand(nomeProcedure, conexao))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+                    foreach (var item in parametros)
+                        comando.Parameters.Add(item);
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(comando))
+                    {
+                        DataSet ds = new DataSet();
+                        await conexao.OpenAsync();
+                        await Task.Run(() => adapter.Fill(ds));
+                        return ds;
+                    }
+                }
             }
-
-            return ds;
         }
-
     }
 }

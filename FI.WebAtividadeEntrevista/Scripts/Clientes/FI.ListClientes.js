@@ -18,7 +18,7 @@ $(document).ready(function () {
                 },
                 CPF: {
                     title: 'CPF',
-                    width: '10%'
+                    width: '20%'
                 },
                 Email: {
                     title: 'Email',

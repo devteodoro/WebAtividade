@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\FI.AtividadeEntrevista",
+    "\\FI.WebAtividadeEntrevista\\Scripts",
+    "\\FI.WebAtividadeEntrevista\\Scripts\\Clientes"
   ],
   "SelectedNode": "\\FI.WebAtividadeEntrevista.sln",
   "PreviewInSolutionExplorer": false

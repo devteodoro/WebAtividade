@@ -17,11 +17,12 @@ $(document).ready(function () {
 
             if (cpf == "" || nome == "")
                 return alert("Os campos CPF e Nome são obrigatórios!");
-
-            if (cpfRepetido(cpf))
-                return alert("Já existe uma beneficiário com esse CPF!");
          
             if (identificador == "") {
+
+                if (cpfRepetido(cpf))
+                    return alert("Já existe uma beneficiário com esse CPF!");
+
                 //adição
                 let id = novoId();
                 let linha = $('<tr>');
@@ -34,11 +35,13 @@ $(document).ready(function () {
                 //Coluna de ações
                 let btnEditar = $('<button>')
                     .addClass('btn btn-default')
+                    .attr("type", "button")
                     .attr('onclick', 'alterarBeneficiario(this)')
                     .append($("<i>").addClass('glyphicon glyphicon-pencil'));
 
                 let btnExcluir = $('<button>')
                     .addClass('btn btn-default')
+                    .attr("type", "button")
                     .attr('onclick', 'excluirBeneficiario(this)')
                     .append($("<i>").addClass('glyphicon glyphicon-trash'));
 

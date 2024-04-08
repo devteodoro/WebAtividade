@@ -22,3 +22,9 @@ C:\Users\Filipe Teodoro\Desktop\Processo Seletivo\FI.WebAtividadeEntrevista\FI.A
 C:\Users\Filipe Teodoro\Desktop\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.csproj.CoreCompileInputs.cache
 C:\Users\Filipe Teodoro\Desktop\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.dll
 C:\Users\Filipe Teodoro\Desktop\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.pdb
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.csproj.AssemblyReference.cache
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.csproj.CoreCompileInputs.cache
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.dll
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\obj\Debug\FI.AtividadeEntrevista.pdb
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\bin\Debug\FI.AtividadeEntrevista.dll
+D:\dev\Processo Seletivo\FI.WebAtividadeEntrevista\FI.AtividadeEntrevista\bin\Debug\FI.AtividadeEntrevista.pdb

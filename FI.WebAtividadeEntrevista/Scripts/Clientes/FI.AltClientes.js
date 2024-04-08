@@ -27,11 +27,13 @@ $(document).ready(function () {
                 //Coluna de ações
                 let btnEditar = $('<button>')
                     .addClass('btn btn-default')
+                    .attr("type", "button")
                     .attr('onclick', 'alterarBeneficiario(this)')
                     .append($("<i>").addClass('glyphicon glyphicon-pencil'));
 
                 let btnExcluir = $('<button>')
                     .addClass('btn btn-default')
+                    .attr("type", "button")
                     .attr('onclick', 'excluirBeneficiario(this)')
                     .append($("<i>").addClass('glyphicon glyphicon-trash'));
 
